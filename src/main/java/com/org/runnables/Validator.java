@@ -72,6 +72,9 @@ public class Validator implements Runnable {
         if (isInvalid && "terminate".equals(stringBuilder.toString())) {
             return INPUT_TYPE.TERMINATE;
         }
+        if (isInvalid){
+            return INPUT_TYPE.INVALID;
+        }
         this.validValue = stringBuilder.toString();
         return INPUT_TYPE.VALID;
     }
