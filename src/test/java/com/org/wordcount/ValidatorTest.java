@@ -58,6 +58,23 @@ public class ValidatorTest extends TestCase {
         Mockito.verify(mockServer, Mockito.times(0)).terminate();
         Mockito.verify(mockQueue, Mockito.times(0)).offer(input);
         Mockito.verify(mockServer, Mockito.times(1)).releaseClientConnection(uuid);
+
+        input = "1s1111111";
+        mockServer = Mockito.mock(Server.class);
+        validator = new Validator(mockServer, uuid, input, mockQueue);
+        validator.run();
+        Mockito.verify(mockServer, Mockito.times(0)).terminate();
+        Mockito.verify(mockQueue, Mockito.times(0)).offer(input);
+        Mockito.verify(mockServer, Mockito.times(1)).releaseClientConnection(uuid);
+
+        input = "sssaaades";
+        mockServer = Mockito.mock(Server.class);
+        validator = new Validator(mockServer, uuid, input, mockQueue);
+        validator.run();
+        Mockito.verify(mockServer, Mockito.times(0)).terminate();
+        Mockito.verify(mockQueue, Mockito.times(0)).offer(input);
+        Mockito.verify(mockServer, Mockito.times(1)).releaseClientConnection(uuid);
+
     }
 
     public void testValidatorTerminate() throws IOException {
