@@ -31,6 +31,7 @@ public class Validator implements Runnable {
 
     @Override
     public void run() {
+        removeTrailingNewLineChar();
         INPUT_TYPE validationResult = validate();
         if (validationResult  == INPUT_TYPE.INVALID){
             server.releaseClientConnection(this.uuid);
@@ -42,6 +43,10 @@ public class Validator implements Runnable {
         if (queue != null) {
             queue.offer(this.validValue);
         }
+    }
+
+    private void removeTrailingNewLineChar() {
+        this.value=this.value.replace("\r\n","");
     }
 
     public INPUT_TYPE validate() {

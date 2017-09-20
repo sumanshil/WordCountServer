@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +21,9 @@ public class Server  extends Thread {
     private static Thread thread = null;
     private static ThreadPool threadPool = null;
     public volatile boolean stop = false;
+    public static int numberOfConsumer = 20;
     private ServerSocket serverSocket;
-    private static NumberStreamConsumer numberStreamConsumer;
+    private static List<NumberStreamConsumer> numberStreamConsumers = new ArrayList<>();
     private static Queue<String> concurrentQueue = new ConcurrentLinkedQueue<>();
     /**
      * Client socket connections will be assigned a UUID. This is used for keeping track of client connections.
@@ -78,6 +77,12 @@ public class Server  extends Thread {
         }
     }
     public static void main(String[] args) {
+        if (args[0] != null) {
+            try {
+                numberOfConsumer = Integer.parseInt(args[0]);
+            }catch (Exception e){
+            }
+        }
         startThreadPools();
         FileStorage.getInstance().initialize();
         startServer();
@@ -89,8 +94,11 @@ public class Server  extends Thread {
                 .getInstance()
                 .getTimerTaskPool()
                 .scheduleAtFixedRate(new TimerTask(), 10, 10, TimeUnit.SECONDS);
-        numberStreamConsumer = new NumberStreamConsumer(concurrentQueue);
-        ThreadPool.getInstance().getPool().submit(numberStreamConsumer);
+        for ( int i = 0 ; i < numberOfConsumer; i++ ) {
+            NumberStreamConsumer numberStreamConsumer = new NumberStreamConsumer(concurrentQueue);
+            numberStreamConsumers.add(numberStreamConsumer);
+            ThreadPool.getInstance().getPool().submit(numberStreamConsumer);
+        }
     }
 
     private static void startServer() {
@@ -109,7 +117,7 @@ public class Server  extends Thread {
         }
         this.stop = true;
         thread.interrupt();
-        if (numberStreamConsumer != null) {
+        for (NumberStreamConsumer numberStreamConsumer : numberStreamConsumers){
             numberStreamConsumer.stop();
         }
         ThreadPool.getInstance().shutDown();
