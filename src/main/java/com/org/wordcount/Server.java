@@ -77,7 +77,7 @@ public class Server  extends Thread {
         }
     }
     public static void main(String[] args) {
-        if (args[0] != null) {
+        if (args.length > 0 && args[0] != null) {
             try {
                 numberOfConsumer = Integer.parseInt(args[0]);
             }catch (Exception e){
